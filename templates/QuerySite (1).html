@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+	<title>Article Search</title>
+    {% include "Header.html" %}
+
+    <style>
+        body {
+            background-color: #e0e5e9;
+        }
+       
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .table-container{
+            height: 500px;
+            overflow: auto;
+            padding-top: 30px;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+    
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    
+        th {
+            background-color: #ddd;
+        }
+    
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .button_vertical {
+            display: flex;
+            flex-direction: column;
+
+        }
+
+        .button_class {
+            height: 50px;
+            background-color: #ABF0D1;
+            font-family: verdana;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 10px;
+            padding: 0 260px;
+            margin-bottom: 20px;
+            padding-top: 30px;
+        }
+
+        .container_bottom {
+            display: grid;
+            width: 800px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            justify-content: center;
+            padding-left: 60px;
+            margin: auto;
+        }
+
+        .container_bottom_buttons {
+            display: grid;
+            width: 100px;
+            height: 50px; 
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            justify-content: center;
+            padding-top: 30px;
+            padding-left: 60px;
+            padding-bottom: 30px;
+            margin: auto;
+
+            
+        }
+        .butttons1 {
+            font-size: 14px;
+            height: 50px;
+            background-color: #bdccf39d;
+            font-family: verdana;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .input_box {
+            height: 118px;
+            align-self: start;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        h4 {
+            padding: 0 30px;
+            text-align: center;
+            font-family: verdana;
+            font-size: 25px;
+        }
+
+        th {
+            cursor: pointer;
+          }
+
+        .colum_width_title {
+            width:400px; 
+        }
+        .colum_width_sum {
+            width:300px; 
+        }
+
+        
+
+    </style>
+
+</head>
+
+
+<body>
+    
+        <form action="/submit" method="POST">
+            <div class="container">
+
+                <div class="button_vertical">
+                    <input class="button_class" type="submit" value="Submit"> <br>
+                    <a href="{{ url_for('randomSample')}}"><input class="button_class" type="random" value="Random Sample"></a>
+                </div>
+                <input class="input_box" type="text" id="query" name="query" value="{{query}}">
+               
+                <p>{{randomSentence}}</p>
+            </div>
+            <div class="container_bottom">
+                <div>
+                    <label for="Similarity">Minimum Similarity Score:</label>
+                    <input type="text" id="similarity " name="similarity" value="{{similarity}}">
+                </div>
+                <div>
+                    <label for="Articles">Number of Articles:</label>
+                    <select id="articles" name="articles">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    
+                    </select> 
+                </div>
+            </div>
+        </form>
+        
+        <script>
+            function sortTable(columnIndex) {
+              var table = document.getElementById("myTable");
+              var rows = Array.from(table.rows).slice(1); // Exclude the table header row
+        
+              rows.sort(function(a, b) {
+                var aValue = a.cells[columnIndex].innerText;
+                var bValue = b.cells[columnIndex].innerText;
+        
+                // Adjust the comparison logic based on your data type
+                if (bValue < aValue) return -1;
+                if (bValue > aValue) return 1;
+                return 0;
+              });
+        
+              // Reorder the table rows
+              rows.forEach(function(row) {
+                table.appendChild(row);
+              });
+            }
+          </script>
+
+        {%if query_search == "The Similarity Score has to be between 0 and 1"%}
+            <h4>The Similarity Score has to be between 0 and 1</h4>
+        
+        {%elif query_search == "No Articles Match Your Query"%}
+            <h4>No Articles Match Your Query</h4>
+        
+        {%elif query_search == "Type a Query Please"%}
+            <h4>Type a Query Please</h4>
+
+        {%else%}
+
+        <div class="table-container">
+            <table id="myTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Source Name ↓</th>
+                        <th class="colum_width_title" onclick="sortTable(1)">Title ↓</th>
+                        <th class="colum_width_sum" onclick="sortTable(2)">Summary ↓</th>
+                        <th onclick="sortTable(3)">DatePublished ↓</th>
+                        <th onclick="sortTable(4)">Similarity Score ↓</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {%for row in query_search:%}
+                    <tr>
+                        <td><a href="{{row[5]}}" target="_blank">{{row[0]}}</a></td>
+                        <td id="one">{{row[1]}}</td>
+                        <td id="two">{{row[2]}}</td>
+                        <td>{{row[3]}}</td>
+                        <td>{{row[4]}}</td>
+                    </tr>
+                
+                    {%endfor%}
+                </tbody>
+            </table> 
+        </div>
+            {%endif%}       
+    
+    
+</body>
+
+</html>

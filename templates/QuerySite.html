@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Article Search</title>
+    {% include "Header.html" %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+
+        body {
+            background-color: #F3FBF6;
+            
+            margin: 0; /* Add margin 0 to body to remove default margin */
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            
+    
+        }    
+
+        .table-wrapper {
+            position: relative; /* Add position relative */
+        }
+
+        .table-container {
+            height: 412px;
+            overflow: auto;
+            /* padding-top: 50px; */
+            /* position: relative; */
+            
+        }
+
+        th, td {
+            border: 1px solid black;
+            background-color: #F3FBF6;
+            /* background-color: rgb(255, 230, 203); */
+            padding: 8px;
+            text-align: left;
+            
+        }
+
+        th {
+            top: 0;
+            z-index: 2;
+            cursor: pointer;
+            background-color: #046307;
+            /* background-color: rgb(250, 211, 164); */
+            border: 1px solid black;
+            color: white;
+            position: sticky;
+        }
+
+        th:first-child {
+            left: 0; /* Stick the first header to the left */
+            border-right: none; /* Remove the right border from the first table header */
+        }
+
+        th:last-child {
+            right: 0; /* Stick the last header to the right */
+            border-left: none; /* Remove the left border from the last table header */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .button_vertical {
+            display: flex;
+            flex-direction: column;
+
+        }
+
+        .button_class {
+            height: 50px;
+            background-color: #046307;
+            /* background-color: rgb(250, 211, 164); */
+            font-family: verdana;
+            font-size: 20px;
+            text-align: center;
+            color: black;
+            cursor: pointer; /* Add pointer cursor */
+            outline: none; /* Remove the default focus outline */
+            color: white;
+        }
+
+        .button_class:hover {
+            background-color: #7099b7; 
+        }
+
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 4fr 1fr;
+            gap: 10px;
+            padding: 0 70px;
+            margin-bottom: 20px;
+            padding-top: 30px;
+        }
+
+        .container_bottom {
+            display: grid;
+            width: 800px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            justify-content: center;
+            padding-left: 10px;
+            margin: auto;
+        }
+
+        .container_bottom_buttons {
+            display: grid;
+            width: 100px;
+            height: 50px; 
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            justify-content: center;
+            padding-top: 30px;
+            padding-left: 60px;
+            padding-bottom: 30px;
+            margin: auto;
+
+            
+        }
+
+        .input_box {
+            height: 118px;
+            align-self: start;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+            width: 750px;
+            text-align: right;
+        }
+
+        h4 {
+            padding: 0 30px;
+            text-align: center;
+            font-family: verdana;
+            font-size: 25px;
+        }
+        
+        .colum_width_title {
+            width:15%; 
+        }
+        .colum_width_sum {
+            width: 30%; 
+            
+        }
+        .colum_width_name {
+            width:8%; 
+        }
+        .colum_width_sim {
+            width: 7%; 
+        }
+        .colum_width_date {
+            width: 8%; 
+        }
+        .colum_width_image {
+            width: 8%; 
+        }
+
+        .colum_width_rank {
+            width: 8%; 
+        }
+
+        .colum_width_country {
+            width:6%;
+
+        }
+        /* Style for the loading cursor */
+        .loading,
+        .loading * {
+            cursor: wait !important;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+
+
+        .speedometer-container{
+            width: 200px;
+            height: 50px;
+            position: relative;
+            margin: 50px auto;
+            top: -80px;
+            right: 100px;
+        }
+        
+
+        .center-point {
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            top: 140px;
+            left: 141px;
+            z-index: 10;
+        }
+
+        .speedometer-scale {
+            width: 8px;
+            height: 235px;
+            background-color: black;
+            position: absolute;
+            left: 143px;
+            top: 28px;
+            transform: rotate(-90deg);
+        }
+
+        .speedometer-scale-1 {
+            transform: rotate(-90deg);
+        }
+
+        .speedometer-scale-2 {
+            transform: rotate(-80deg);
+        }
+
+        .speedometer-scale-3 {
+            transform: rotate(-70deg);
+        }
+
+        .speedometer-scale-4 {
+            transform: rotate(-60deg);
+        }
+
+        .speedometer-scale-5 {
+            transform: rotate(-50deg);
+        }
+
+        .speedometer-scale-6 {
+            transform: rotate(-40deg);
+        }
+
+        .speedometer-scale-7 {
+            transform: rotate(-30deg);
+        }
+
+        .speedometer-scale-8 {
+            transform: rotate(-20deg);
+        }
+
+        .speedometer-scale-9 {
+            transform: rotate(-10deg);
+        }
+
+        .speedometer-scale-10 {
+            transform: rotate(0deg);
+        }
+
+        .speedometer-scale-11 {
+            transform: rotate(10deg);
+        }
+
+        .speedometer-scale-12 {
+            transform: rotate(20deg);
+        }
+
+        .speedometer-scale-13 {
+            transform: rotate(30deg);
+        }
+
+        .speedometer-scale-14 {
+            transform: rotate(40deg);
+        }
+
+        .speedometer-scale-15 {
+            transform: rotate(50deg);
+        }
+
+        .speedometer-scale-16 {
+            transform: rotate(60deg);
+        }
+
+        .speedometer-scale-17 {
+            transform: rotate(70deg);
+        }
+
+        .speedometer-scale-18 {
+            transform: rotate(80deg);
+        }
+
+        .speedometer-scale-19 {
+            transform: rotate(90deg);
+            height: 198px;
+            top: 46px;
+            left: 162px;
+        }
+
+        
+
+        .speedometer-center-hide {
+            width: 205px;
+            height: 205px;
+            background-color: #F3FBF6;
+            border-radius: 50%;
+            position: absolute;
+            top: 43px;
+            left: 45px;
+            z-index: 9;
+        }
+
+        .speedometer-bottom-hide {
+            width: 320px;
+            height: 112px;
+            background-color: #F3FBF6;
+            position: absolute;
+            z-index: 3;
+            top: 152px;
+            left: -14px;
+            
+        }
+
+        .arrow-container {
+            width: 160px;
+            height: 160px;
+            background-color: transparent;
+            position: absolute;
+            z-index: 13;
+            top: 67px;
+            left: 67px;
+            
+            
+        }
+
+        .arrow-wrapper {
+            width: 160px;
+            height: 160px;
+            position: relative;
+            background-color: transparent;
+            transition: all 0.5s;
+            
+        }
+
+        .arrow{
+            width: 75px;
+            height: 4px;
+            background-color: black;
+            position: absolute;
+            top: 78px;
+            left: -1px;
+            
+            
+
+        }
+
+        .speed-0 {
+            transform: rotate(0deg);
+        }
+        .speed-10 {
+            transform: rotate(10deg);
+        }
+        .speed-20 {
+            transform: rotate(20deg);
+        }
+        .speed-30 {
+            transform: rotate(30deg);
+        }
+        .speed-40 {
+            transform: rotate(40deg);
+        }
+        .speed-50 {
+            transform: rotate(50deg);
+        }
+        .speed-60 {
+            transform: rotate(60deg);
+        }
+        .speed-70 {
+            transform: rotate(70deg);
+        }
+        .speed-80 {
+            transform: rotate(80deg);
+        }
+        .speed-90 {
+            transform: rotate(90deg);
+        }
+        .speed-100 {
+            transform: rotate(100deg);
+        }
+        .speed-110 {
+            transform: rotate(110deg);
+        }
+        .speed-120 {
+            transform: rotate(120deg);
+        }
+        .speed-130 {
+            transform: rotate(130deg);
+        }
+        .speed-140 {
+            transform: rotate(140deg);
+        }
+        .speed-150 {
+            transform: rotate(150deg);
+        }
+        .speed-160 {
+            transform: rotate(160deg);
+        }
+        .speed-170 {
+            transform: rotate(170deg);
+        }
+        .speed-180 {
+            transform: rotate(180deg);
+        }
+        .accelerate-container {
+            margin-top: 120px;
+            text-align: center;
+        }
+
+        .accelerate-container button {
+            width: 200px;
+            height: 60px;
+            border: none;
+            border-radius: 5px;
+            margin: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 5px 5px 5px #c6c6c6;
+            color: white;
+        }
+
+        .accelerate-container button:active {
+            box-shadow: 5px 5px 5px #ffffff;
+            
+        }
+
+        .increase {
+            background-color: green;
+            
+        }
+
+        .decrease {
+            background-color: red;
+            
+        }
+
+        .speedometer-scale-19.active {
+            background-color: green;
+        }
+
+        .speedometer-scale-18.active {
+            background-color: rgb(8,181,8);
+        }
+
+        .speedometer-scale-17.active {
+            background-color: rgb(21, 202, 21);
+        }
+        .speedometer-scale-16.active {
+            background-color: rgb(43,244,43);
+        }
+        .speedometer-scale-15.active {
+            background-color: rgb(79,251,79);
+        }
+        .speedometer-scale-14.active {
+            background-color: rgb(133,251,79);
+        }
+        .speedometer-scale-13.active {
+            background-color: rgb(199,251,79);
+        }
+        .speedometer-scale-12.active {
+            background-color: rgb(228,251,79);
+        }
+        .speedometer-scale-11.active {
+            background-color: rgb(251,251,79);
+        }
+        .speedometer-scale-10.active {
+            background-color: rgb(251,234,79);
+        }
+        .speedometer-scale-9.active {
+            background-color: rgb(251,205,79);
+        }
+        .speedometer-scale-8.active {
+            background-color: rgb(251,168,79);
+        }
+        .speedometer-scale-7.active {
+            background-color: rgb(251,139,79);
+        }
+        .speedometer-scale-6.active {
+            background-color: rgb(251,122,79);
+        }
+        .speedometer-scale-5.active {
+            background-color: rgb(251,99,79);
+        }
+        .speedometer-scale-4.active {
+            background-color: rgb(251,90,79);
+        }
+        .speedometer-scale-3.active {
+            background-color: rgb(251,61,79);
+        }
+        .speedometer-scale-2.active {
+            background-color: rgb(251,47,79);
+        }
+        .speedometer-scale-1.active {
+            background-color: red;
+        }
+
+        h3{
+            padding-left: 1240px;
+            top: -70px;
+            z-index: 10;
+            position: relative;
+            /* border: 1px black solid; */
+        }
+
+        .inline-heading {
+            display: flex;
+            padding-left: 1195px;
+            margin-top: 12px;
+            margin-bottom: -12px;
+            
+        }
+
+        /* .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f7f9fb;
+            transition: opacity 0.75s, visibility 0.75s;
+
+        }
+
+        .loader-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader::after {
+            content: "";
+            width: 75px;
+            height: 75px;
+            border: 15px solid #dddddd;
+            border-radius: 50%;
+            border-top-color: #046307;
+            animation: loading 0.75s ease infinite;
+
+        }
+
+        @keyframes loading {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        } */
+    
+
+    </style>
+
+</head>
+
+
+<body>
+    
+        <h2 class="inline-heading">Check Worthiness</h2>
+        
+    
+        <form action="/submit" method="POST">
+            <div class="container">
+                
+                <div class="button_vertical">
+                    
+                    <input class="button_class" type="submit" value="Submit" id="searchInput"> <br>
+                    <a href="{{ url_for('randomSample')}}"><input id="randomm" class="button_class" type="random" value="Random Sample" readonly></a>
+                </div>
+                
+                <input class="input_box" type="text" id="query" name="query" value="{{query}}">
+
+                <div class="speedometer-container">
+        
+                    <div class="center-point"></div>
+                    <div class="speedometer-center-hide"></div>
+                    <div class="speedometer-bottom-hide"></div>
+                    <div class="arrow-container">
+                        <div class="arrow-wrapper speed-0">
+                            <div class="arrow"></div>
+                        </div>
+                    </div>
+
+                    <div class="speedometer-scale speedometer-scale-1 active"></div>
+                    <div class="speedometer-scale speedometer-scale-2"></div>
+                    <div class="speedometer-scale speedometer-scale-3"></div>
+                    <div class="speedometer-scale speedometer-scale-4"></div>
+                    <div class="speedometer-scale speedometer-scale-5"></div>
+                    <div class="speedometer-scale speedometer-scale-6"></div>
+                    <div class="speedometer-scale speedometer-scale-7"></div>
+                    <div class="speedometer-scale speedometer-scale-8"></div>
+                    <div class="speedometer-scale speedometer-scale-9"></div>
+                    <div class="speedometer-scale speedometer-scale-10"></div>
+                    <div class="speedometer-scale speedometer-scale-11"></div>
+                    <div class="speedometer-scale speedometer-scale-12"></div>
+                    <div class="speedometer-scale speedometer-scale-13"></div>
+                    <div class="speedometer-scale speedometer-scale-14"></div>
+                    <div class="speedometer-scale speedometer-scale-15"></div>
+                    <div class="speedometer-scale speedometer-scale-16"></div>
+                    <div class="speedometer-scale speedometer-scale-17"></div>
+                    <div class="speedometer-scale speedometer-scale-18"></div>
+                    <div class="speedometer-scale speedometer-scale-19"></div>
+                    <div>
+                    
+                    </div>
+                </div>
+            
+                
+            </div>
+            <div class="container_bottom">
+                <div>
+                    <label for="Similarity">Minimum Similarity Score:</label>
+                    <input type="text" id="similarity " name="similarity" value="{{similarity}}">
+                </div>
+                <div>
+                    <label for="Articles">Number of Articles:</label>
+                    <select id="articles" name="articles" onchange="saveSelectedOption()">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    
+                    </select> 
+                </div>
+                
+            </div>
+           
+            <h3 id="perc">Score: {{yesPercentage}}</h3>
+            
+
+            
+        
+
+          
+        {%if query_search == "The Similarity Score has to be between 0 and 1"%}
+            <h4>The Similarity Score has to be between 0 and 1</h4>
+            
+        
+        {%elif query_search == "No Articles Match Your Query"%}
+            <h4>No Articles Match Your Query</h4>
+        
+        {%elif query_search == "Type a Query Please"%}
+            <h4>Type a Query Please</h4>
+
+        {%else%}
+
+       <div style="height:50px;">
+    </div>
+
+        <div class="table-container">
+                <table id="myTable">
+                    <thead>
+                        <tr>
+                            <th class="colum_width_rank" onclick="sortTable(0)">Source Rank ↕</th>
+                            <th class="colum_width_name" onclick="sortTable(1)">Source Name ↕</th>
+                            <th class="colum_width_image">Source Image ↕</th>
+                            <th class="colum_width_title" onclick="sortTable(3)">Title ↕</th>
+                            <th class="colum_width_sum" onclick="sortTable(4)">Summary ↕</th>
+                            <th class="colum_width_country" onclick="sortTable(5)">Country ↕</th>
+                            <th class="colum_width_date"onclick="sortTable(6)">Date Published ↕</th>
+                            <th class="colum_width_sim" onclick="sortTable(7)">Similarity Score ↕</th>
+                            
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for row in query_search:%}
+                        <tr>
+                            
+                                <td>{{row[0]}}</td>
+                                <td ><a href="{{row[9]}}" target="_blank">{{row[1]}}</a></td>
+                                <div class="image-container">
+                                    <td><img src={{row[2]}} width="150" height="100"></td>
+                                </div>
+                                <td style="text-align: right;" id="one"><a href="{{row[8]}}" target="_blank">{{row[3]}}</a></td>
+                                
+                                
+                                <td style="text-align: right;"><a href="{{ url_for('openAnalys', row=row[10]) }}" target="_blank">{{row[4]}}</a></td>
+                               
+                                <td>{{row[5]}}</td>
+                                <td>{{row[6]}}</td>
+                                <td>{{row[7]}}</td>
+                                
+                            
+                        </tr>
+                    
+                        {%endfor%}
+                    </tbody>
+                </table> 
+        </div>
+        
+            {%endif%}       
+        </form>
+        <div class="loader"></div>
+        <script>
+            window.addEventListener("load", () => {
+                const loader = document.querySelector(".loader");
+
+                loader.classList.add("loader-hidden");
+
+                loader.addEventListener("transitionend", () => {
+                    document.body.removeChild("loader");
+                })
+            })
+                
+               function changeColor(){
+                var heading = document.getElementById("perc");
+                // Change the color using the style property
+                heading.style.color = "black";
+               }
+
+
+                     
+                        // Send the AJAX request using the Fetch API
+                fetch('/yes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                
+                })
+                .then(response => response.json())
+                .then(data => {
+                // Call a function to populate the table with the received data
+                    increaseSpeed(data.yesPercent)
+                    // decreaseSpeed(data.yesPercent)
+                    
+                    
+                })
+                .catch(error => {
+                console.error('Error:', error);
+                });
+                // const ignoreDiv = document.getElementById('speedometer-container');
+
+                // ignoreDiv.addEventListener('click', (event) => {
+                // event.preventDefault(); // Prevent default form submission behavior
+                // });
+                var speed = 0
+                var prevSpeed = 0
+                var currentScale = 1
+               
+                function increaseSpeed(num) {
+
+                    console.log("bruh")
+                    console.log(num)
+                    num = num - 1;
+                    for (let i = 1; i <= num; i++) {
+                        if (speed < 180) {
+                            speed = speed + 10;
+                            addClass()
+                            currentScale = currentScale + 1;
+                            changeActive()
+                        }     
+                }
+                    
+                }
+
+                function decreaseSpeed(num) {
+                    num = num - 1
+                    for (let i = 1; i <= num; i++) {
+                        if (speed > 0) {
+                            speed = speed - 10;
+                            addClass()
+                            changeActive()
+                            currentScale = currentScale - 1;
+                            
+                        }
+                    }
+                }
+
+
+                function addClass() {
+                    let newClass = "speed-" + speed;
+                    let prevClass = "speed-" + prevSpeed;
+                    let el = document.getElementsByClassName("arrow-wrapper")[0];
+                    if (el.classList.contains(prevClass)) {
+                        el.classList.remove(prevClass);
+                        el.classList.add(newClass);
+                    }
+                    prevSpeed = speed
+                }
+
+                function changeActive() {
+                    let tempClass = "speedometer-scale-" + currentScale;
+                    let el = document.getElementsByClassName(tempClass)[0];
+                    el.classList.toggle("active");
+                }
+
+
+
+
+                
+                function sortTable(columnIndex) {
+                var table = document.getElementById("myTable");
+                var rows = Array.from(table.rows).slice(1); // Exclude the table header row
+    
+                // Get the current sort direction of the column
+                var currentSortDir = table.dataset.sortDir;
+    
+                rows.sort(function(a, b) {
+                    var aValue = a.cells[columnIndex].innerText;
+                    var bValue = b.cells[columnIndex].innerText;
+    
+                    // Adjust the comparison logic based on your data type
+                    if (!isNaN(parseFloat(aValue)) && !isNaN(parseFloat(bValue))) {
+                    // Both values are numbers, perform numeric comparison
+                    aValue = parseFloat(aValue);
+                    bValue = parseFloat(bValue);
+                    return aValue - bValue;
+                    } else {
+                    // One or both values are non-numeric, perform string-based comparison
+                    return aValue.localeCompare(bValue);
+                    }
+                });
+    
+                // Reverse the sort direction if the column was already sorted
+                if (currentSortDir === "asc") {
+                    rows.reverse();
+                    table.dataset.sortDir = "desc";
+                } else {
+                    table.dataset.sortDir = "asc";
+                }
+    
+                // Reorder the table rows
+                rows.forEach(function(row) {
+                    table.appendChild(row);
+                });
+                }
+    
+               // Function to save the selected option in local storage
+                function saveSelectedOption() {
+                var dropdown = document.getElementById("articles");
+                var selectedOption = dropdown.value;
+                localStorage.setItem("selectedOption", selectedOption);
+                }
+    
+                // Function to load the selected option from local storage and set it as the dropdown's value
+                function loadSelectedOption() {
+                var dropdown = document.getElementById("articles");
+                var selectedOption = localStorage.getItem("selectedOption");
+                if (selectedOption) {
+                    dropdown.value = selectedOption;
+                } else {
+                    // Reset the dropdown to the default value if no stored value exists
+                    dropdown.value = dropdown.options[0].value;
+                }
+                }
+    
+                // Call the saveSelectedOption function when the dropdown value is changed
+                document.getElementById("articles").addEventListener("change", saveSelectedOption);
+    
+                // Call the loadSelectedOption function when the page is loaded
+                window.addEventListener("load", loadSelectedOption);
+                
+    
+                var searchInput = document.getElementById('searchInput');
+                searchInput.addEventListener('click', startLoading);
+    
+                function startLoading() {
+                // Create and append the overlay div
+                var overlay = document.createElement('div');
+                overlay.classList.add('overlay');
+                document.body.appendChild(overlay);
+    
+                // Show the loading cursor
+                document.body.classList.add('loading');
+    
+                // Get the selected option value from the dropdown
+                var selectedOption = document.getElementById("articles").value;
+    
+                // Simulate the loading time based on the selected option
+                var loadingTime = getLoadingTime(selectedOption);
+    
+                // Simulate the loading time and hide the loading cursor and overlay
+                setTimeout(function () {
+                    document.body.classList.remove('loading');
+                    // Remove the overlay
+                    document.body.removeChild(overlay);
+                }, loadingTime);
+                }
+    
+                function getLoadingTime(selectedOption) {
+                // Define the loading times based on the selected option
+                var loadingTimes = {
+                    "10": 2500,   // Simulate 2 seconds loading time
+                    "20": 4000,   // Simulate 4 seconds loading time
+                    "50": 8000,   // Simulate 8 seconds loading time
+                    "100": 12000  // Simulate 12 seconds loading time
+                };
+    
+                // Return the loading time for the selected option
+                return loadingTimes[selectedOption];
+                }           
+                
+                
+    
+    
+    
+    
+    
+    
+    
+        </script>
+</body>
+
+</html>

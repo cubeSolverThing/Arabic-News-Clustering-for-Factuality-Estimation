@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Similarity Score Testing</title>
+    {% include "Header.html" %}
+
+    <style>
+
+    body {
+        background-color: #F3FBF6;
+        /* background-color: rgb(255, 237, 216); */
+        margin: 0; /* Add margin 0 to body to remove default margin */
+    }
+
+    .input_box {
+        height: 50px;
+        width: 550px;
+        align-self: center;
+        box-sizing: border-box;
+        padding: 10px;
+        font-size: 16px;
+        text-align: center;
+        
+    }
+
+    .two_input_box {
+        height: 50px;
+        width: 550px;
+        align-self: center;
+        box-sizing: border-box;
+        padding: 10px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 100px;
+    }
+
+    .container_two {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-left: 50px;
+            
+    }
+
+    .bouton {
+        padding-top: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;        
+        text-align: center;
+        color: black;
+        
+        
+    }
+
+    .button_class {
+        cursor: pointer;
+        background-color: #046307;
+        /* background-color: rgb(250, 211, 164); */
+        color: white;
+    }
+
+    .randoBouton {
+        padding-left: 30px;
+        padding-right: 10px;
+        cursor: pointer;
+        
+        
+        
+    }
+
+    .rando_class {
+        padding-left: 30px;
+        padding-right: 10px;
+        width: 180px;
+        height: 45px;
+        cursor: pointer;
+        /* background-color: rgb(250, 211, 164); */
+        background-color: #046307;
+        color: white;
+        
+        
+    }
+
+    .rando_class:hover {
+        background-color: #7099b7;
+    }
+    
+    .button_class:hover {
+        background-color: #7099b7;
+    }
+
+
+    /* input:hover {
+            background-color: #7099b7; 
+        } */
+
+    input {
+        /*  */
+        font-family: verdana;
+        font-size: 20px;
+        height: 50px;
+    }
+
+    .result {
+        font-size: 50px;
+        font-family: verdana;
+        text-align: center;
+    }
+
+
+    </style>
+
+</head>
+
+<body>
+    
+    <form action="/simFunc" method="POST">
+    <div class="container">
+        <input class="input_box" type="text" name="first" id="first" value="{{sentence}}">
+       
+        
+        <div class="container_two">
+
+            <input class="two_input_box" type="text" name="second" id="second" value="{{sentence_two}}">
+    
+        </div>
+
+    </div>
+    
+    <div class="bouton">
+        <a href="{{ url_for('simComp')}}"><input class="button_class" type="submit" value="Submit" readonly></a> 
+
+        <div class="randoBouton">
+            <a href="{{ url_for('randoSimScore')}}"><input class="rando_class" type="rando" value="Random Sample" readonly></a>
+        </div>
+    </div>
+    </form>
+    <div class="result">
+        {%if score == "Insert a Complete Input Please"%}
+            <p>Insert a Complete Input Please</p>
+        
+        {%else%}
+
+            <p>{{score}}</p>
+
+        {%endif%}
+
+    </div>
+
+</body>
+
+
+</html>

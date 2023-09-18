@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Navigation Site</title>
+	<style>
+		/* Style the navigation bar */
+		nav {
+			background-color: #046307 ;
+			/* background-color: rgb(250, 211, 164);; */
+			overflow: hidden;
+            display: flex;
+            justify-content: center;
+			border: 1px solid black;
+		}
+		
+		/* Style the links */
+		nav a {
+			float: left;
+			color: white;
+			/* color: black; */
+			text-align: center;
+			padding: 14px 16px;
+			text-decoration: none;
+			font-size: 25px;
+            
+		}
+
+		.nav-active {
+			background-color: #088c2b;
+			/* background-color: rgb(237, 189, 131); */
+  			/* background-color: #cbdffa; */
+			border: 3px solid black;
+		}
+
+
+		.Navigation a:hover {
+			/* background-color: rgb(200, 200, 200); */
+			background-color: #7099b7;
+			/* color: black; */
+			color: white;
+		}
+
+		
+		
+        
+
+		
+
+		
+	</style>
+</head>
+<body>
+	<nav name="myForm" class="Navigation">
+		
+			<a href="{{ url_for('QuerySite') }}" id="qu"  >Query Site</a>
+			<a href="{{ url_for('stats') }}" id="ana"  >Analysis</a>	
+			<a href="{{ url_for('simSite') }}" id="sim"  >Testing</a>	
+			<a href="{{ url_for('cluster') }}" id="cluster"  >Cluster</a>
+		
+	</nav>
+
+	<script>
+		// Get the current page URL
+		var currentPageUrl = window.location.href;
+
+		// Get all navigation links
+		var navLinks = document.querySelectorAll('nav a');
+
+		// Check if the active link ID is stored in localStorage
+		var activeLinkId = localStorage.getItem('activeLinkId');
+
+		// Iterate over each navigation link
+		for (var i = 0; i < navLinks.length; i++) {
+		var link = navLinks[i];
+
+		// Check if the link's href matches the current page URL
+		if (link.href === currentPageUrl) {
+			// Store the active link ID in localStorage
+			localStorage.setItem('activeLinkId', link.id);
+		}
+
+		// Add click event listener to each link
+		link.addEventListener('click', function(e) {
+			// Remove the active class from all links
+			for (var j = 0; j < navLinks.length; j++) {
+			navLinks[j].classList.remove('nav-active');
+			}
+
+			// Add the active class to the clicked link
+			this.classList.add('nav-active');
+			
+			// Store the clicked link ID in localStorage
+			localStorage.setItem('activeLinkId', this.id);
+		});
+		}
+
+		// Check if the active link ID is stored and apply the active class to that link
+		if (activeLinkId) {
+		var activeLink = document.getElementById(activeLinkId);
+		
+		if (activeLink) {
+			activeLink.classList.add('nav-active');
+		}
+		}
+		
+
+
+	</script>
+</body>
+</html>

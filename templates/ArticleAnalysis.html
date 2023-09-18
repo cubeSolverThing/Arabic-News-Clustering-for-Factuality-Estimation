@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Specific Article Analysis</title>
+
+    <style>
+        body {
+            background-color: #F3FBF6;
+        }
+
+        img {
+            height: 250px;
+            width: 500px;
+        }
+        
+        h1 {
+            font-size: 50px;
+            text-align: center;
+        }
+
+        #cloud {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-bottom: 20px;
+        }  
+
+        p {
+            font-size: 18px;
+        }
+
+        .griddy {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Auto size for the image, 1fr for the content */
+            gap: 100px;
+            border: 2px dashed #046307;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-left-color: transparent;
+            height: 290px;
+            
+        }
+
+        .iAmContent {
+            position: relative;
+            top: 15px;
+            width: 900px;
+            height: 250px;
+            overflow: auto;
+            text-align: justify;
+            
+        }
+
+        .image-container { 
+            width: 150px;
+            height: 100px;
+            top: 20px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .keywords{
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            position: relative;
+            gap: 25px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-left-color: transparent;
+
+        }
+
+        h3{
+            top: 50px;
+            position: relative;
+        }
+
+        img {
+            height: 250px;
+            width: 500px;
+        }
+        
+        .articleTitle {
+            text-align: center;
+            position: relative;
+            
+        }
+
+        .conteent {
+            position: relative;
+            height: 100%;
+            margin-bottom: -30px;
+        }
+
+        .wordsTitle{
+            padding-left: 20px;
+            padding-bottom: 30px;
+        }
+
+        .whole {
+            border: 2px solid #046307
+        }
+        
+        .words {
+            padding-top: 10px;
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f7f9fb;
+            transition: opacity 0.75s, visibility 0.75s;
+
+        }
+
+        .loader-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader::after {
+            content: "";
+            width: 75px;
+            height: 75px;
+            border: 15px solid #dddddd;
+            border-radius: 50%;
+            border-top-color: #046307;
+            animation: loading 0.75s ease infinite;
+
+        }
+
+        @keyframes loading {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        }
+
+        .ner {
+            position: relative;
+            bottom: 0;
+            left: 0;
+            
+        }
+
+    </style>
+
+</head>
+
+<body>
+<h1 class="articleTitle">{{title}}</h1>
+<div class="whole">
+    
+    <div class="griddy">
+        <div class="image-container">
+            <img src={{imageImp}} alt="Image">
+        </div>
+
+        <div class="iAmContent">
+            <strong><p style="text-align: center;"> Article Content</p></strong>
+            <p class="conteent">{{content}}</p>
+            {%if PossibleNER|length != 0%}
+                <div class="nerdiv">
+                    <strong><p style="text-align: center;"> Name-Entity Recognition</p></strong>
+                    <div class="ner">
+                        {%for key,value in PossibleNER.items():%}
+                            <p>{{key}}{{value}}</p>
+                        {%endfor%}
+                    </div>
+                </div>
+            {%endif%}
+            
+        </div>
+
+        
+    </div>
+    <div class="keywords">
+        <div id="cloud">
+            <img src="{{wordcloud}}">
+        </div>
+        
+        <div class="wordsTitle">
+            <strong><p style="text-align: center; padding-right: 30px; padding-top: 10px;">Article Keywords</p></strong>
+            <div class="words">
+                {%for row in finale:%}
+                    {%for roww in row:%}
+                        {%if roww[:2] == 'tf'%}
+                            <p><strong>TFIDF-</strong> {{roww[2:]}}</p>
+                        {%elif roww[:2] == 'ya'%}
+                            <p><strong>Yake-</strong> {{roww[2:]}}</p>
+                        {%else%}
+                            <p><strong>KeyBert-</strong> {{roww[2:]}}</p>
+                        {%endif%}
+                    {%endfor%}
+                {%endfor%}
+        </div>
+        </div>
+    </div>
+        
+</div>
+<div class="loader"></div>
+
+<script>
+
+        window.addEventListener("load", () => {
+        const loader = document.querySelector(".loader");
+
+        loader.classList.add("loader-hidden");
+
+        loader.addEventListener("transitionend", () => {
+            document.body.removeChild("loader");
+        })
+    })
+</script>
+</body>
+</html>

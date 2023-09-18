@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Article Search</title>
+    {% include "Header.html" %}
+
+    <style>
+
+        body {
+            background-color: #F3FBF6;
+            /* background-color: rgb(255, 237, 216); */
+            margin: 0; /* Add margin 0 to body to remove default margin */
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 10px;
+            width: 98%;
+            margin-left: 1%;
+            margin-right: 1%;
+        }    
+
+        .table-wrapper {
+            position: relative; /* Add position relative */
+        }
+
+        .table-container {
+            height: 412px;
+            overflow: auto;
+            /* padding-top: 50px; */
+            /* position: relative; */
+        }
+
+        th, td {
+            border: 1px solid black;
+            background-color: #F3FBF6;
+            /* background-color: rgb(255, 230, 203); */
+            padding: 8px;
+            text-align: left;
+            
+        }
+
+        th {
+            top: 0;
+            z-index: 2;
+            cursor: pointer;
+            background-color: #046307;
+            /* background-color: rgb(250, 211, 164); */
+            border: 1px solid black;
+            color: white;
+            position: sticky;
+        }
+
+        th:first-child {
+            left: 0; /* Stick the first header to the left */
+            border-right: none; /* Remove the right border from the first table header */
+        }
+
+        th:last-child {
+            right: 0; /* Stick the last header to the right */
+            border-left: none; /* Remove the left border from the last table header */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            gap: 10px;
+            padding: 0 260px;
+            margin-bottom: 20px;
+            padding-top: 30px;
+        }
+
+        h4 {
+            padding: 0 30px;
+            text-align: center;
+            font-family: verdana;
+            font-size: 25px;
+        }
+        
+        .colum_width_title {
+            width:15%; 
+        }
+        .colum_width_sum {
+            width: 31%; 
+            
+        }
+        .colum_width_name {
+            width:8%; 
+        }
+        .colum_width_date {
+            width: 9%; 
+        }
+        .colum_width_image {
+            width: 8%; 
+        }
+
+        .colum_width_rank {
+            width: 8%; 
+        }
+
+        .colum_width_country {
+            width:7%;
+
+        }
+        .colum_width_center {
+          width:10%;
+
+      }
+        /* Style for the loading cursor */
+        .loading,
+        .loading * {
+            cursor: wait !important;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .car-row {
+            display: none;
+          }
+        .show {
+            display: table-row;
+          }
+
+        .big-font {
+            font-size: 22px;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            margin-left: 22px;
+            margin-right: 4px;
+            align-self: flex-start;
+          }
+
+        select {
+            font-size: 16px;
+            margin-bottom: 20px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            height: 35px;
+            width: auto;
+            min-width: 200px;
+            margin-left: 20px;
+          }
+    </style>
+
+</head>
+
+
+<body>
+  <div  class="big-font"> 
+    <label id="cluster_num" for="clusters">Choose a Cluster:</label>
+
+  </div>
+    <select id="clusters" name="clusters" onchange="displayTable()">
+      <option value="none">Select a cluster</option>
+      {% for cluster in cluster_names %}
+      <option value="{{ cluster }}">{{ cluster }}</option>
+      {% endfor %}    
+    </select>
+    
+    <table id="myTable">
+        <thead>
+          <tr>
+            <th class="colum_width_rank" onclick="sortTable(0)">Source Rank ↕</th>
+            <th class="colum_width_name" onclick="sortTable(1)">Source Name ↕</th>
+            <th class="colum_width_image">Source Image ↕</th>
+            <th class="colum_width_title" onclick="sortTable(3)">Title ↕</th>
+            <th class="colum_width_sum" onclick="sortTable(4)">Summary ↕</th>
+            <th class="colum_width_country" onclick="sortTable(5)">Country ↕</th>
+            <th class="colum_width_date" onclick="sortTable(6)">Date Published ↕</th>
+            <th class="colum_width_center" onclick="sortTable(7)">Distance from Center ↕</th>
+          </tr>
+        </thead>
+        <tbody id="myTableBody">
+          <!-- Populated rows will be dynamically added here -->
+        </tbody>
+    </table>
+    
+    <script>
+
+      function displayTable() {
+        var selectedCluster = document.getElementById("clusters").value;
+        var selectedPosition = document.getElementById("clusters").selectedIndex;
+        // Create the request payload
+        var payload = { value: selectedCluster, position: selectedPosition};
+      
+        // Send the AJAX request using the Fetch API
+        fetch('/process_cluster', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Call a function to populate the table with the received data
+          console.log("Length: " + data.length);
+          populateTable(data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+      function clearTable() {
+        var tableBody = document.getElementById("myTableBody");
+        
+        // Clear the table body by setting innerHTML to an empty string
+        tableBody.innerHTML = "";
+      }
+      
+      function populateTable(data) {
+        clearTable()
+        var tableBody = document.getElementById("myTable").getElementsByTagName("tbody")[0];
+        data.forEach(function(rowData) {
+        var row = document.createElement("tr");
+        row.setAttribute("id", rowData[0] + "Row");
+        row.setAttribute("class", "cluster-row");
+
+        var rankCell = document.createElement("td");
+        rankCell.textContent = rowData[0];
+        row.appendChild(rankCell);
+
+        var nameCell = document.createElement("td");
+        var nameLink = document.createElement("a");
+        nameLink.setAttribute("href", rowData[8]);
+        nameLink.setAttribute("target", "_blank");
+        nameLink.textContent = rowData[1];
+        nameCell.appendChild(nameLink);
+        row.appendChild(nameCell);
+
+        var imageCell = document.createElement("td");
+        var imageElement = document.createElement("img");
+        imageElement.src = rowData[2];
+        imageElement.width = 150;
+        imageElement.height = 100;
+        imageCell.appendChild(imageElement);
+        row.appendChild(imageCell);
+
+        var titleCell = document.createElement("td");
+        var titleLink = document.createElement("a");
+        titleLink.setAttribute("href", rowData[7]);
+        titleLink.setAttribute("target", "_blank");
+        titleLink.textContent = rowData[3];  
+        titleCell.appendChild(titleLink);   
+        row.appendChild(titleCell);        
+
+        var summaryCell = document.createElement("td");
+        summaryCell.setAttribute("style", "text-align: right;");
+        summaryCell.textContent = rowData[4];
+        row.appendChild(summaryCell);
+
+        var countryCell = document.createElement("td");
+        countryCell.textContent = rowData[5];
+        row.appendChild(countryCell);
+
+        var dateCell = document.createElement("td");
+        dateCell.textContent = rowData[6];
+        row.appendChild(dateCell);
+
+        var distanceCell = document.createElement("td");
+        distanceCell.textContent = rowData[11];
+        row.appendChild(distanceCell);
+
+        // Append the row to the table body
+        tableBody.appendChild(row);
+
+        var label = document.getElementById("cluster_num");
+        label.textContent = "Cluster Number " + rowData[10] + ":";
+
+        });
+        var rowCount = tableBody.rows.length;
+        console.log("Number of rows in the table After: " + rowCount);
+      }
+    
+      // Close the previously opened dropdown when a new one is clicked
+      var select = document.getElementById("clusters");
+      select.addEventListener("click", function() {
+        var previousValue = this.dataset.previousValue;
+        if (previousValue) {
+          var previousRow = document.getElementById(previousValue + "Row");
+          previousRow.classList.remove("show");
+        }
+        this.dataset.previousValue = this.value;
+      });
+
+      function sortTable(columnIndex) {
+        var table = document.getElementById("myTable");
+        var tableBody = table.getElementsByTagName("tbody")[0];
+        var rows = Array.from(table.rows).slice(1); // Exclude the table header row
+      
+        // Get the current sort direction of the column
+        var currentSortDir = table.dataset.sortDir;
+      
+        rows.sort(function(a, b) {
+          var aValue = a.cells[columnIndex].innerText;
+          var bValue = b.cells[columnIndex].innerText;
+      
+          // Adjust the comparison logic based on your data type
+          if (!isNaN(parseFloat(aValue)) && !isNaN(parseFloat(bValue))) {
+            // Both values are numbers, perform numeric comparison
+            aValue = parseFloat(aValue);
+            bValue = parseFloat(bValue);
+            return aValue - bValue;
+          } else {
+            // One or both values are non-numeric, perform string-based comparison
+            return aValue.localeCompare(bValue);
+          }
+        });
+      
+        // Reverse the sort direction if the column was already sorted
+        if (currentSortDir === "asc") {
+          rows.reverse();
+          table.dataset.sortDir = "desc";
+        } else {
+          table.dataset.sortDir = "asc";
+        }
+      
+        // Clear the table body
+        tableBody.innerHTML = "";
+      
+        // Reorder the table rows
+        rows.forEach(function(row) {
+          tableBody.appendChild(row);
+        });
+      }
+        
+    </script>    
+  
+  </body>
+
+</html>
